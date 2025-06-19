@@ -11,77 +11,97 @@
       padding: 20px;
     }
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: auto;
       background: #fff;
       border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 30px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
     }
     .shop-image {
-      width: 120px;
-      height: 100px;
+      width: 150px;
+      height: 120px;
       object-fit: contain;
       display: block;
-      margin: 0 auto 10px;
+      margin: 0 auto 15px;
     }
     h2 {
       text-align: center;
+      font-size: 24px;
     }
     .grid {
       display: flex;
       flex-wrap: wrap;
-      gap: 20px;
+      gap: 25px;
       justify-content: center;
     }
     .card {
-      width: 120px;
-      padding: 10px;
+      width: 160px;
+      padding: 15px;
       border: 1px solid #ccc;
-      border-radius: 12px;
+      border-radius: 16px;
       background: #fafafa;
       text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
     .card img {
-      width: 80px;
-      height: 80px;
+      width: 100px;
+      height: 100px;
       object-fit: contain;
-      margin-bottom: 5px;
+      margin-bottom: 10px;
+    }
+    .card strong {
+      font-size: 16px;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .price-label {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 8px;
     }
     .counter {
       display: flex;
-      justify-content: center;
-      gap: 5px;
+      flex-direction: column;
       align-items: center;
+      gap: 5px;
+    }
+    .button-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
     }
     .counter input {
-      width: 40px;
+      width: 50px;
+      height: 35px;
       text-align: center;
       font-weight: bold;
       background: #eef;
       border: 1px solid #aaa;
-      border-radius: 4px;
+      border-radius: 5px;
+      font-size: 16px;
     }
     .btn {
-      width: 30px;
-      height: 30px;
+      width: 35px;
+      height: 35px;
       font-size: 18px;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
     }
     .btn-green { background: #2ecc71; color: white; }
     .btn-red { background: #e74c3c; color: white; }
+
     .calc-btn {
-      margin: 20px auto;
+      margin: 30px auto;
       display: block;
-      padding: 10px 25px;
-      font-size: 16px;
+      padding: 12px 30px;
+      font-size: 18px;
       font-weight: bold;
       color: white;
       background-color: #2ecc71;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       cursor: pointer;
       transition: background-color 0.3s, transform 0.2s;
@@ -94,8 +114,8 @@
       text-align: center;
       font-weight: bold;
       color: green;
-      font-size: 18px;
-      margin-top: 10px;
+      font-size: 20px;
+      margin-top: 15px;
     }
   </style>
 </head>
@@ -127,7 +147,7 @@
 
     document.getElementById("shopTitle").innerText = `Milk Entry – ${shop}`;
     document.getElementById("shopImage").src = `images/${shop.replaceAll(" ", "%20")}.png`;
-    document.getElementById("shopImage").onerror = function() {
+    document.getElementById("shopImage").onerror = function () {
       this.src = "images/fallback.png";
     };
 
@@ -138,12 +158,15 @@
       const card = document.createElement("div");
       card.className = "card";
       card.innerHTML = `
-        <div><strong>${milk.name}</strong></div>
+        <strong>${milk.name}</strong>
         <img src="images/${milk.file}" alt="${milk.name}" onerror="this.src='images/fallback.png'">
+        <div class="price-label">₹${milk.price}</div>
         <div class="counter">
-          <input id="${id}" type="number" value="0" min="0" readonly />
-          <button class="btn btn-green" onclick="changeQty('${id}', 1)">+</button>
-          <button class="btn btn-red" onclick="document.getElementById('${id}').value=0">×</button>
+          <input id="${id}" type="number" value="0" min="0" />
+          <div class="button-row">
+            <button class="btn btn-green" onclick="changeQty('${id}', 1)">+</button>
+            <button class="btn btn-red" onclick="document.getElementById('${id}').value=0">×</button>
+          </div>
         </div>
       `;
       grid.appendChild(card);
@@ -162,16 +185,13 @@
         total += qty * milk.price;
       });
 
-      // Save to localStorage
       let totals = JSON.parse(localStorage.getItem("shopTotals") || "{}");
       totals[shop] = total;
       localStorage.setItem("shopTotals", JSON.stringify(totals));
 
-      // Show total
       document.getElementById("shopTotal").innerText = `Shop Total: ₹${total}`;
     }
 
-    // On page load: show saved value if any
     window.onload = function () {
       const totals = JSON.parse(localStorage.getItem("shopTotals") || "{}");
       if (totals[shop]) {
