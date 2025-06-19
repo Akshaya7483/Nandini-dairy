@@ -38,6 +38,11 @@
     .shop-card:hover {
       transform: scale(1.03);
     }
+    .shop-card.filled {
+      border: 2px solid #2ecc71;
+      background: #e6f9ed;
+      box-shadow: 0 0 10px rgba(46, 204, 113, 0.3);
+    }
     .shop-card img {
       width: 100%;
       height: 100px;
@@ -93,11 +98,19 @@
     const totalBox = document.getElementById("grandTotal");
 
     function renderShops() {
+      const totals = JSON.parse(localStorage.getItem("shopTotals") || "{}");
+
       shopNames.forEach(name => {
         const imageName = name.replaceAll(" ", "%20") + ".png";
         const link = document.createElement("a");
         link.href = `milk.html?shop=${encodeURIComponent(name)}`;
         link.className = "shop-card";
+
+        // ✅ Add "filled" class if total exists
+        if (totals[name]) {
+          link.classList.add("filled");
+        }
+
         link.innerHTML = `
           <img src="images/${imageName}" alt="${name}" onerror="this.src='images/fallback.png'">
           <div class="shop-name">${name}</div>
@@ -115,14 +128,16 @@
     function clearTotals() {
       localStorage.removeItem("shopTotals");
       updateGrandTotal();
-      alert("All shop totals cleared!");
+      location.reload(); // reload to remove green highlights
     }
 
     renderShops();
     updateGrandTotal();
 
-    // 👇 Refresh total on back navigation
+    // ✅ Refresh highlight and total when returning from milk.html
     window.addEventListener("pageshow", function () {
+      grid.innerHTML = '';
+      renderShops();
       updateGrandTotal();
     });
   </script>
