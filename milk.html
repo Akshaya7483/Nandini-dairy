@@ -11,7 +11,7 @@
       padding: 20px;
     }
     .container {
-      max-width: 600px;
+      max-width: 800px;
       margin: auto;
       background: #fff;
       border-radius: 12px;
@@ -28,27 +28,74 @@
     h2 {
       text-align: center;
     }
-    .row {
+    .grid {
       display: flex;
-      justify-content: space-between;
-      margin: 8px 0;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
     }
-    .row label {
-      flex: 1;
+    .card {
+      width: 120px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      background: #fafafa;
+      text-align: center;
     }
-    .row input {
+    .card img {
       width: 80px;
+      height: 80px;
+      object-fit: contain;
+      margin-bottom: 5px;
     }
-    button {
+    .counter {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      align-items: center;
+    }
+    .counter input {
+      width: 40px;
+      text-align: center;
+      font-weight: bold;
+      background: #eef;
+      border: 1px solid #aaa;
+      border-radius: 4px;
+    }
+    .btn {
+      width: 30px;
+      height: 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .btn-green { background: #2ecc71; color: white; }
+    .btn-red { background: #e74c3c; color: white; }
+    .calc-btn {
+      margin: 20px auto;
       display: block;
-      margin: 20px auto 10px;
       padding: 10px 25px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      background-color: #2ecc71;
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    .calc-btn:hover {
+      background-color: #27ae60;
+      transform: scale(1.03);
     }
     .total {
       text-align: center;
       font-weight: bold;
-      margin-top: 10px;
       color: green;
+      font-size: 18px;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -57,71 +104,75 @@
     <img id="shopImage" class="shop-image" src="" alt="Shop">
     <h2 id="shopTitle">Milk Entry</h2>
 
-    <div id="milkForm"></div>
+    <div class="grid" id="productGrid"></div>
 
-    <button onclick="calculateTotal()">Calculate Total</button>
-
+    <button class="calc-btn" onclick="calculateTotal()">Calculate Total</button>
     <div class="total" id="shopTotal"></div>
   </div>
 
   <script>
     const milkTypes = [
-      { name: "Special", price: 27 },
-      { name: "Family", price: 27 },
-      { name: "Ordinary", price: 24 },
-      { name: "Special 1L", price: 52 },
-      { name: "Ordinary 1L", price: 46 },
-      { name: "Samruddhi", price: 28 },
-      { name: "1/2 Curd", price: 28 }
+      { name: "Special", file: "special.png", price: 54 },
+      { name: "Family", file: "family.png", price: 54 },
+      { name: "Ordinary", file: "ordinary.png", price: 48 },
+      { name: "Special 1L", file: "special_1L.png", price: 52 },
+      { name: "Ordinary 1L", file: "ordinary_1L.png", price: 46 },
+      { name: "Samruddhi", file: "samrudhi.png", price: 56 },
+      { name: "1/2 Curd", file: "curd_500.png", price: 56 },
+      { name: "1/4 Curd", file: "curd_200.png", price: 13 }
     ];
 
     const urlParams = new URLSearchParams(window.location.search);
     const shop = urlParams.get('shop') || 'Unknown';
+
     document.getElementById("shopTitle").innerText = `Milk Entry – ${shop}`;
     document.getElementById("shopImage").src = `images/${shop.replaceAll(" ", "%20")}.png`;
     document.getElementById("shopImage").onerror = function() {
       this.src = "images/fallback.png";
     };
 
-    const form = document.getElementById("milkForm");
+    const grid = document.getElementById("productGrid");
+
     milkTypes.forEach((milk, i) => {
-      const row = document.createElement("div");
-      row.className = "row";
-      row.innerHTML = `
-        <label>${milk.name} (₹${milk.price})</label>
-        <input type="number" min="0" id="milk_${i}" />
+      const id = `count_${i}`;
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <div><strong>${milk.name}</strong></div>
+        <img src="images/${milk.file}" alt="${milk.name}" onerror="this.src='images/fallback.png'">
+        <div class="counter">
+          <input id="${id}" type="number" value="0" min="0" readonly />
+          <button class="btn btn-green" onclick="changeQty('${id}', 1)">+</button>
+          <button class="btn btn-red" onclick="document.getElementById('${id}').value=0">×</button>
+        </div>
       `;
-      form.appendChild(row);
+      grid.appendChild(card);
     });
 
-    const heritageRow = document.createElement("div");
-    heritageRow.className = "row";
-    heritageRow.innerHTML = `
-      <label>Heritage Milk (₹)</label>
-      <input type="number" min="0" id="heritage" />
-    `;
-    form.appendChild(heritageRow);
+    function changeQty(id, delta) {
+      const input = document.getElementById(id);
+      let val = parseInt(input.value) || 0;
+      input.value = Math.max(0, val + delta);
+    }
 
     function calculateTotal() {
       let total = 0;
       milkTypes.forEach((milk, i) => {
-        const qty = parseInt(document.getElementById(`milk_${i}`).value) || 0;
+        const qty = parseInt(document.getElementById(`count_${i}`).value) || 0;
         total += qty * milk.price;
       });
-      const heritage = parseInt(document.getElementById("heritage").value) || 0;
-      total += heritage;
 
-      // ✅ Save shop total to localStorage
+      // Save to localStorage
       let totals = JSON.parse(localStorage.getItem("shopTotals") || "{}");
       totals[shop] = total;
       localStorage.setItem("shopTotals", JSON.stringify(totals));
 
-      // ✅ Show only shop total
+      // Show total
       document.getElementById("shopTotal").innerText = `Shop Total: ₹${total}`;
     }
 
-    // ✅ On page load, prefill saved shop total if available
-    window.onload = function() {
+    // On page load: show saved value if any
+    window.onload = function () {
       const totals = JSON.parse(localStorage.getItem("shopTotals") || "{}");
       if (totals[shop]) {
         document.getElementById("shopTotal").innerText = `Shop Total (Saved): ₹${totals[shop]}`;
