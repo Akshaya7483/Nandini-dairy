@@ -79,7 +79,7 @@
   <div class="grid" id="shopGrid"></div>
 
   <div class="grand-total" id="grandTotal"></div>
-  <button class="clear-btn" onclick="clearTotals()">Reset All Totals</button>
+  <button class="clear-btn" onclick="clearTotals()">Clear All Totals</button>
 
   <script>
     const shopNames = [
@@ -115,11 +115,16 @@
     function clearTotals() {
       localStorage.removeItem("shopTotals");
       updateGrandTotal();
-      alert("✅ All shop totals cleared!");
+      alert("All shop totals cleared!");
     }
 
     renderShops();
     updateGrandTotal();
+
+    // 👇 Refresh total on back navigation
+    window.addEventListener("pageshow", function () {
+      updateGrandTotal();
+    });
   </script>
 </body>
 </html>
