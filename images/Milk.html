@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Milk Supply Memo (Pictorial)</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f5f5f5;
+      margin: 10px;
+    }
+    .shop {
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      background: #fff;
+    }
+    .product {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 10px;
+      width: 120px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background: #fff;
+    }
+    .products-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: start;
+    }
+    .product img {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      margin: 5px;
+    }
+    .counter {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 5px;
+    }
+    .counter button {
+      width: 30px;
+      height: 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-red { background: #e74c3c; color: white; }
+    .btn-green { background: #27ae60; color: white; }
+    .count-box {
+      width: 40px;
+      height: 30px;
+      text-align: center;
+      border-radius: 5px;
+      border: 1px solid #aaa;
+      background-color: #ecf0f1;
+    }
+    .total-display {
+      margin-top: 10px;
+      font-weight: bold;
+      color: green;
+    }
+    #grandTotal {
+      font-size: 1.5em;
+      text-align: center;
+      color: darkblue;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h2>🧾 Milk Supply Memo (Visual)</h2>
+  <div id="shops"></div>
+  <div style="text-align: center;">
+    <button onclick="calculateGrandTotal()">Calculate Grand Total</button>
+    <div id="grandTotal"></div>
+  </div>
+
+  <script>
+    const milkTypes = [
+      { name: "Special", file: "special.png", price: 27 },
+      { name: "Special 1L", file: "special_1L.png", price: 52 },
+      { name: "Family", file: "family.png", price: 27 },
+      { name: "Ordinary", file: "ordinary.png", price: 24 },
+      { name: "Ordinary 1L", file: "ordinary_1L.png", price: 46 },
+      { name: "Samrudhi", file: "samrudhi.png", price: 28 },
+      { name: "Curd 200ml", file: "curd_200.png", price: 10 },
+      { name: "Curd 500ml", file: "curd_500.png", price: 28 }
+    ];
+
+    const shopNames = ["Chowdeshwari", "Raghu", "Milk point"];
+
+    function createProductBlock(milk, index, shopIndex) {
+      const inputId = `count_${shopIndex}_${index}`;
+      return `
+        <div class="product">
+          <div><strong>${milk.name}</strong></div>
+          <img src="${milk.file}" alt="${milk.name}" />
+          <div class="counter">
+            <input type="number" id="${inputId}" value="0" min="0" class="count-box" readonly />
+            <button class="btn-green" onclick="changeQty('${inputId}', 1)">+</button>
+            <button class="btn-red" onclick="document.getElementById('${inputId}').value=0">×</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function createShopBlock(name, shopIndex) {
+      let html = `<div class="shop"><h3>🏪 ${name}</h3><div class="products-grid">`;
+      milkTypes.forEach((milk, i) => {
+        html += createProductBlock(milk, i, shopIndex);
+      });
+      html += `</div><button onclick="calculateShopTotal(${shopIndex})">Calculate Total</button>`;
+      html += `<div class="total-display" id="total${shopIndex}"></div></div>`;
+      return html;
+    }
+
+    function loadShops() {
+      const container = document.getElementById("shops");
+      shopNames.forEach((name, index) => {
+        container.innerHTML += createShopBlock(name, index);
+      });
+    }
+
+    function changeQty(id, delta) {
+      const input = document.getElementById(id);
+      let val = parseInt(input.value) || 0;
+      val += delta;
+      input.value = Math.max(0, val);
+    }
+
+    function calculateShopTotal(shopIndex) {
+      let total = 0;
+      milkTypes.forEach((milk, i) => {
+        const qty = parseInt(document.getElementById(`count_${shopIndex}_${i}`).value) || 0;
+        total += qty * milk.price;
+      });
+      document.getElementById(`total${shopIndex}`).innerText = `Shop Total: ₹${total}`;
+      return total;
+    }
+
+    function calculateGrandTotal() {
+      let grand = 0;
+      shopNames.forEach((_, index) => {
+        grand += calculateShopTotal(index);
+      });
+      document.getElementById("grandTotal").innerText = `Total for All Shops: ₹${grand}`;
+    }
+
+    loadShops();
+  </script>
+</body>
+</html>

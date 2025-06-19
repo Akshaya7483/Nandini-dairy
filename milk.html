@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Milk Entry</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .shop-image {
+      width: 120px;
+      height: 100px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 10px;
+    }
+    h2 {
+      text-align: center;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      margin: 8px 0;
+    }
+    .row label {
+      flex: 1;
+    }
+    .row input {
+      width: 80px;
+    }
+    button {
+      display: block;
+      margin: 20px auto 10px;
+      padding: 10px 25px;
+    }
+    .total {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 10px;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img id="shopImage" class="shop-image" src="" alt="Shop">
+    <h2 id="shopTitle">Milk Entry</h2>
+
+    <div id="milkForm"></div>
+
+    <button onclick="calculateTotal()">Calculate Total</button>
+
+    <div class="total" id="shopTotal"></div>
+  </div>
+
+  <script>
+    const milkTypes = [
+      { name: "Special", price: 27 },
+      { name: "Family", price: 27 },
+      { name: "Ordinary", price: 24 },
+      { name: "Special 1L", price: 52 },
+      { name: "Ordinary 1L", price: 46 },
+      { name: "Samruddhi", price: 28 },
+      { name: "1/2 Curd", price: 28 }
+    ];
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const shop = urlParams.get('shop') || 'Unknown';
+    document.getElementById("shopTitle").innerText = `Milk Entry – ${shop}`;
+    document.getElementById("shopImage").src = `images/${shop.replaceAll(" ", "%20")}.png`;
+    document.getElementById("shopImage").onerror = function() {
+      this.src = "images/fallback.png";
+    };
+
+    const form = document.getElementById("milkForm");
+    milkTypes.forEach((milk, i) => {
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML = `
+        <label>${milk.name} (₹${milk.price})</label>
+        <input type="number" min="0" id="milk_${i}" />
+      `;
+      form.appendChild(row);
+    });
+
+    const heritageRow = document.createElement("div");
+    heritageRow.className = "row";
+    heritageRow.innerHTML = `
+      <label>Heritage Milk (₹)</label>
+      <input type="number" min="0" id="heritage" />
+    `;
+    form.appendChild(heritageRow);
+
+    function calculateTotal() {
+      let total = 0;
+      milkTypes.forEach((milk, i) => {
+        const qty = parseInt(document.getElementById(`milk_${i}`).value) || 0;
+        total += qty * milk.price;
+      });
+      const heritage = parseInt(document.getElementById("heritage").value) || 0;
+      total += heritage;
+
+      // ✅ Save shop total to localStorage
+      let totals = JSON.parse(localStorage.getItem("shopTotals") || "{}");
+      totals[shop] = total;
+      localStorage.setItem("shopTotals", JSON.stringify(totals));
+
+      // ✅ Show only shop total
+      document.getElementById("shopTotal").innerText = `Shop Total: ₹${total}`;
+    }
+
+    // ✅ On page load, prefill saved shop total if available
+    window.onload = function() {
+      const totals = JSON.parse(localStorage.getItem("shopTotals") || "{}");
+      if (totals[shop]) {
+        document.getElementById("shopTotal").innerText = `Shop Total (Saved): ₹${totals[shop]}`;
+      }
+    };
+  </script>
+</body>
+</html>
