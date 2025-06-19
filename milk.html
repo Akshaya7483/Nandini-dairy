@@ -162,9 +162,8 @@
       const card = document.createElement("div");
       card.className = "card";
       card.innerHTML = `
-        <strong>${milk.name} - ${milk.price}rs </strong>
+        <strong>${milk.name} - ₹${milk.price}rs </strong>
         <img src="images/${milk.file}" alt="${milk.name}" onerror="this.src='images/fallback.png'">
-        <div class="price-label">₹</div>
         <div class="counter">
           <input id="${id}" type="number" value="0" min="0" />
           <div class="button-row">
